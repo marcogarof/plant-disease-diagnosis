@@ -1,0 +1,71 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "plant_disease_diagnosis"
+version = "0.0.1"
+description = "ML-powered phytosanitary decision support: diagnose crop diseases from a single leaf photo."
+authors = [
+  { name = "Marco Garofalo", email = "marcogarofalo08@gmail.com" },
+  { name = "Luan Nurja", email = "nurjaluan5@gmail.com" },
+]
+license = { file = "LICENSE" }
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License"
+]
+dependencies = [
+    "dagshub>=0.7.3",
+    "datasets>=5.1.0",
+    "deepchecks>=0.19.1",
+    "dvc>=3.67.1",
+    "fastapi>=0.159.1",
+    "great-expectations>=1.24.0",
+    "huggingface-hub>=2.2.0",
+    "loguru",
+    "matplotlib>=3.11.2",
+    "mcp[cli]>=2.3.0",
+    "mkdocs",
+    "mlflow>=3.17.2",
+    "numpy>=2.5.4",
+    "pandas>=3.0.6",
+    "pillow>=13.0.0",
+    "pip",
+    "prefect>=3.8.8",
+    "prometheus-fastapi-instrumentator>=8.1.0",
+    "pytest",
+    "python-dotenv",
+    "python-multipart>=0.0.32",
+    "pyyaml>=6.0.3",
+    "ruff",
+    "scikit-learn>=1.9.1",
+    "seaborn>=0.13.2",
+    "torch>=2.14.1",
+    "torchvision>=0.29.1",
+    "tqdm",
+    "typer",
+    "uvicorn[standard]>=0.54.0",
+]
+requires-python = "~=3.12.0"
+
+
+[tool.ruff]
+line-length = 99
+src = ["plant_disease_diagnosis"]
+include = ["pyproject.toml", "plant_disease_diagnosis/**/*.py"]
+
+[tool.ruff.lint]
+extend-select = ["I"]  # Add import sorting
+
+[tool.ruff.lint.isort]
+known-first-party = ["plant_disease_diagnosis"]
+force-sort-within-sections = true
+
+[dependency-groups]
+dev = [
+    "locust>=2.47.0",
+    "pytest-cov>=7.1.0",
+]
+
