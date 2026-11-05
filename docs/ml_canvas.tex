@@ -1,0 +1,476 @@
+\documentclass[8pt]{article}
+\usepackage[a3paper,landscape,margin=7mm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{amsmath,amssymb}
+\usepackage{microtype}
+
+% --- Color Palette (Curated Modern Professional Palette) ---
+\definecolor{canvasNavy}{HTML}{0B1E36}
+\definecolor{canvasSlate}{HTML}{334155}
+\definecolor{canvasBorder}{HTML}{CBD5E1}
+\definecolor{canvasMuted}{HTML}{64748B}
+
+% Category Accent Colors & Light Backgrounds
+\definecolor{headValue}{HTML}{065F46}      % Forest Emerald
+\definecolor{bgValue}{HTML}{F2FBF6}
+\definecolor{headData}{HTML}{0E7490}       % Deep Teal
+\definecolor{bgData}{HTML}{F0FDFE}
+\definecolor{headFeatures}{HTML}{4338CA}   % Indigo
+\definecolor{bgFeatures}{HTML}{F5F7FF}
+\definecolor{headModel}{HTML}{1E3A8A}      % Classic Deep Navy
+\definecolor{bgModel}{HTML}{F0F7FF}
+\definecolor{headDecision}{HTML}{9A3412}   % Terracotta / Rust
+\definecolor{bgDecision}{HTML}{FFFBF5}
+\definecolor{headEval}{HTML}{7C2D12}       % Deep Amber
+\definecolor{bgEval}{HTML}{FEF6F6}
+\definecolor{headMonitor}{HTML}{155E75}    % Dark Cyan
+\definecolor{bgMonitor}{HTML}{F0FDFB}
+
+% Base configuration
+\renewcommand{\familydefault}{\sfdefault}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\pagestyle{empty}
+
+% TColorBox Style Definitions
+\tcbset{
+  canvasbox/.style={
+    enhanced,
+    boxrule=1.1pt,
+    arc=2.8mm,
+    left=3.2mm,
+    right=3.2mm,
+    top=2.5mm,
+    bottom=2.2mm,
+    boxsep=0.5mm,
+    fonttitle=\bfseries\sffamily\fontsize{8.5pt}{10.2pt}\selectfont,
+    coltitle=white,
+    attach boxed title to top left={yshift*=-\tcboxedtitleheight/2, xshift=4.5mm},
+    boxed title style={
+      boxrule=0pt,
+      arc=1.6mm,
+      left=2.5mm,
+      right=2.5mm,
+      top=0.8mm,
+      bottom=0.8mm
+    }
+  }
+}
+
+% List formatting
+\setlist[itemize]{leftmargin=*,nosep,label={\textcolor{canvasSlate}{\raisebox{0.15ex}{\tiny$\blacksquare$}}}}
+\setlist[enumerate]{leftmargin=*,nosep}
+
+\begin{document}
+
+% ==============================================================================
+% TOP BANNER: EXECUTIVE METADATA & OWNML FRAMEWORK (Height = 16mm)
+% ==============================================================================
+\begin{tcolorbox}[
+  enhanced,
+  colback=canvasNavy,
+  colframe=canvasNavy,
+  arc=2.5mm,
+  boxrule=0pt,
+  height=16mm,
+  boxsep=0pt,
+  left=6mm, right=6mm, top=2.2mm, bottom=2mm,
+  colupper=white
+]
+\begin{tabularx}{\linewidth}{@{}X r@{}}
+  {\fontsize{14pt}{16pt}\selectfont \textbf{MACHINE LEARNING CANVAS}} \quad 
+  {\fontsize{10.5pt}{12pt}\selectfont \textbf{\textbar\quad Plant Disease Diagnosis --- Phytosanitary Decision-Support System}} & 
+  {\fontsize{8pt}{10pt}\selectfont \textbf{Methodology:} OwnML (Louis Dorard Framework) \quad\textbar\quad \textbf{Milestone:} M1 Inception Approved} \\
+  {\fontsize{7.5pt}{9pt}\selectfont \textcolor{gray!30}{Course: Software Engineering for AI-Enabled Systems (SE4AI) \textbar\ University of Bari \textbar\ Authors: Marco Garofalo, Luan Nurja}} &
+  {\fontsize{7.5pt}{9pt}\selectfont \textcolor{gray!30}{Benchmark: PlantVillage (54,306 images, 38 classes) \textbar\ SLA: Latency $p95 < 200\,\text{ms}$, E2E $< 5\,\text{s}$ \textbar\ Version: 1.0 (Oct 2026)}}
+\end{tabularx}
+\end{tcolorbox}%
+\vspace{2mm}%
+
+% ==============================================================================
+% ROW 1: 3 COLUMNS (VALUE PROPOSITION, DATA SOURCES, DATA COLLECTION) (Height = 68mm)
+% ==============================================================================
+\noindent%
+\begin{minipage}[t]{0.327\linewidth}%
+  \begin{tcolorbox}[
+    canvasbox,
+    colback=bgValue,
+    colframe=headValue,
+    title={1. VALUE PROPOSITION},
+    boxed title style={colback=headValue},
+    height=68mm
+  ]
+  \fontsize{7.2pt}{8.8pt}\selectfont
+  \textbf{Core Objective:} Turn a single leaf photo into an immediate, actionable phytosanitary diagnosis within seconds, preventing catastrophic crop loss for underserved farmers.
+  \vspace{1mm}
+  \begin{itemize}
+    \item \textbf{Global Problem Impact:} Crop diseases destroy \textbf{20--40\% global yield} annually (FAO), generating $>$\textbf{\$220B} in damages. Smallholders lack agronomists, and lab cultures take weeks, causing crop death and blind pesticide overuse.
+    \item \textbf{Value Equation (Before $\rightarrow$ After):}
+      \begin{itemize}[label={\textcolor{headValue}{$\rightarrow$}}]
+        \item \emph{Turnaround:} Days/weeks (lab culture/PCR) $\rightarrow$ \textbf{$<5$ seconds} in-field.
+        \item \emph{Cost per test:} \$10--50 (consultant/travel) $\rightarrow$ \textbf{$\sim$\$0.001} cloud inference.
+        \item \emph{Efficacy:} Calendar chemical spraying $\rightarrow$ \textbf{Targeted, organic-first advisory}.
+        \item \emph{Access:} 1 expert : 1,000 farmers $\rightarrow$ \textbf{1 model : millions via smartphone}.
+      \end{itemize}
+    \item \textbf{Target Personas \& Core Workflows:}
+      \begin{itemize}
+        \item \textbf{Smallholder Farmer} (0.5--5 ha, Kenya/India/Brazil): Photo $\rightarrow$ diagnosis + organic protocol in local language (\textbf{UC-01}, offline queue \textbf{UC-02}).
+        \item \textbf{Extension Officer}: Batch upload 20+ farm photos $\rightarrow$ prioritized triage (\textbf{UC-03}).
+        \item \textbf{Hobby / Urban Gardener}: Identifies benign spots $\rightarrow$ stops chemical waste.
+        \item \textbf{Agri-Tech Platform / Co-op}: White-label diagnostic engine via REST/MCP (\textbf{UC-04}).
+      \end{itemize}
+    \item \textbf{System Interfaces:} Mobile PWA, WhatsApp/Telegram bot (MCP tool), IoT Gateway.
+  \end{itemize}
+  \end{tcolorbox}%
+\end{minipage}\hfill%
+\begin{minipage}[t]{0.327\linewidth}%
+  \begin{tcolorbox}[
+    canvasbox,
+    colback=bgData,
+    colframe=headData,
+    title={2. DATA SOURCES},
+    boxed title style={colback=headData},
+    height=68mm
+  ]
+  \fontsize{7.2pt}{8.8pt}\selectfont
+  \textbf{Benchmark \& Real-World Data Repositories:}
+  \vspace{1mm}
+  \begin{itemize}
+    \item \textbf{Primary Benchmark: PlantVillage (Mohanty et al., 2016):}
+      \begin{itemize}
+        \item \textbf{Volume:} 54,306 high-resolution leaf photographs, expert-verified.
+        \item \textbf{Taxonomy:} 38 discrete classes across 14 crop species:
+          \emph{Apple, Blueberry, Cherry, Corn, Grape, Orange, Peach, Bell Pepper, Potato, Raspberry, Soybean, Squash, Strawberry, Tomato}.
+        \item \textbf{Pathology Coverage:} 26 infectious conditions (fungal blights, rusts, bacterial spots, viral mosaics) + 12 healthy control classes.
+        \item \textbf{Source Registry:} Hugging Face datasets (\texttt{mohanty/PlantVillage}).
+      \end{itemize}
+    \item \textbf{Production Real-World Ingestion Streams:}
+      \begin{itemize}
+        \item Farmer field captures uploaded via mobile app and messaging bots.
+        \item Agricultural extension tablet batch uploads with field validation metadata.
+        \item IoT greenhouse camera feeds for continuous anomaly scouting (\textbf{UC-05}).
+      \end{itemize}
+    \item \textbf{Phytosanitary Knowledge Bases (Treatment Mappings):}
+      \begin{itemize}
+        \item Structured domain knowledge from FAO and CABI Crop Protection Compendium.
+        \item Mapping: \texttt{(Crop, Pathology) $\rightarrow$ (Cultural, Organic, Chemical, Prevention)}.
+      \end{itemize}
+    \item \textbf{Future Contextual Priors (v2.0 Roadmap):}
+      \begin{itemize}
+        \item Agro-climatic weather APIs (temperature, humidity) for Bayesian prior likelihoods.
+      \end{itemize}
+  \end{itemize}
+  \end{tcolorbox}%
+\end{minipage}\hfill%
+\begin{minipage}[t]{0.327\linewidth}%
+  \begin{tcolorbox}[
+    canvasbox,
+    colback=bgData,
+    colframe=headData,
+    title={3. DATA COLLECTION \& GOVERNANCE},
+    boxed title style={colback=headData},
+    height=68mm
+  ]
+  \fontsize{7.2pt}{8.8pt}\selectfont
+  \textbf{Data Ingestion, Versioning \& Feedback Loops:}
+  \vspace{1mm}
+  \begin{itemize}
+    \item \textbf{Reproducible Versioning \& Lineage (DVC):}
+      \begin{itemize}
+        \item Raw images and curated train/val/test splits tracked with Data Version Control (\textbf{DVC}). Immutable hash pointers stored in Git; raw assets stored in cloud object storage (S3/GCS).
+        \item Pipelines locked via \texttt{dvc.yaml}; single-command reproduction via \texttt{dvc repro}.
+      \end{itemize}
+    \item \textbf{Active Learning \& Continuous Feedback Loop:}
+      \begin{itemize}
+        \item \textbf{Uncertainty Sampling:} Predictions with entropy in $[0.50, 0.75]$ automatically routed to human agronomist verification queue.
+        \item \textbf{Dispute Ingestion:} Farmer feedback mechanism ("Dispute result" / "Report misdiagnosis") captures edge cases and seasonal disease variants.
+      \end{itemize}
+    \item \textbf{Collection Constraints \& Bottlenecks:}
+      \begin{itemize}
+        \item Expert labeling cost: Certified phytopathologist review $\sim$\$1.50/image.
+        \item Class imbalance: Prevalent classes (Tomato Yellow Leaf Curl: 5,357 images) vs rare classes (Potato Early Blight: 1,000 images). Addressed via focal loss / reweighting.
+      \end{itemize}
+    \item \textbf{Privacy, Ethics \& Regulatory Boundaries:}
+      \begin{itemize}
+        \item \textbf{EXIF Stripping:} GPS coordinates discarded at ingestion; opt-in only for national disease tracking.
+        \item \textbf{Zero PII:} Strictly non-human biological imagery.
+        \item \textbf{Regulatory Disclaimer:} Certified as advisory support; not a legal pesticide mandate.
+      \end{itemize}
+  \end{itemize}
+  \end{tcolorbox}%
+\end{minipage}%
+
+\vspace{2mm}%
+
+% ==============================================================================
+% ROW 2: 3 COLUMNS (PREDICTION TASK, FEATURES, BUILDING MODELS) (Height = 68mm)
+% ==============================================================================
+\noindent%
+\begin{minipage}[t]{0.327\linewidth}%
+  \begin{tcolorbox}[
+    canvasbox,
+    colback=bgModel,
+    colframe=headModel,
+    title={4. PREDICTION TASK (ML TASK)},
+    boxed title style={colback=headModel},
+    height=68mm
+  ]
+  \fontsize{7.2pt}{8.8pt}\selectfont
+  \textbf{Mathematical Problem Formulation:}
+  \vspace{1mm}
+  \begin{itemize}
+    \item \textbf{Task Archetype:} Supervised Multi-Class Single-Label Image Classification over $K = 38$ mutually exclusive botanical-condition classes.
+    \item \textbf{Input Entity:} Single leaf RGB image tensor $\mathbf{x} \in \mathbb{R}^{3 \times 224 \times 224}$ under natural ambient field lighting and varying backgrounds.
+    \item \textbf{Output Target:} Calibrated posterior class distribution $\mathbf{p} = \text{Softmax}(\mathbf{z}/\tau) \in [0,1]^{38}$ ($\sum_{k=1}^{38} p_k = 1$), where $\mathbf{z} \in \mathbb{R}^{38}$ represents raw logits and $\tau > 0$ is a post-hoc temperature scaling parameter calibrated on the validation set.
+    \item \textbf{Delivered Inference Payload:}
+      \begin{itemize}
+        \item Top-$k$ ranked predictions: $\big(\text{Crop}_i, \text{Condition}_i, \hat{p}_i\big)$ for $i \in \{1,\dots, k\}$.
+        \item Calibrated confidence score $C = \max_k p_k$.
+        \item Out-of-Distribution (OOD) score $S_{\text{OOD}}(\mathbf{x})$ rejecting non-leaf/non-crop inputs.
+        \item Human-readable agronomic advisory (pathogen type, severity, cultural remedy).
+      \end{itemize}
+    \item \textbf{Target Offline Acceptance Criteria:}
+      \begin{itemize}
+        \item Top-1 Accuracy: $\ge 95.0\%$ \quad\textbar\quad Macro-Averaged F1: $\ge 0.930$.
+        \item Expected Calibration Error (ECE): $< 0.050$.
+      \end{itemize}
+  \end{itemize}
+  \end{tcolorbox}%
+\end{minipage}\hfill%
+\begin{minipage}[t]{0.327\linewidth}%
+  \begin{tcolorbox}[
+    canvasbox,
+    colback=bgFeatures,
+    colframe=headFeatures,
+    title={5. FEATURES \& PREPROCESSING},
+    boxed title style={colback=headFeatures},
+    height=68mm
+  ]
+  \fontsize{7.2pt}{8.8pt}\selectfont
+  \textbf{Input Representations \& Data Transformations:}
+  \vspace{1mm}
+  \begin{itemize}
+    \item \textbf{Deterministic Preprocessing Pipeline:}
+      \begin{itemize}
+        \item Format: 3-channel RGB image decode.
+        \item Geometry: Aspect-ratio preserving resize and center-crop to $224 \times 224 \times 3$.
+        \item Standardization: Zero-mean, unit-variance normalization with ImageNet statistics: $\boldsymbol{\mu} = [0.485, 0.456, 0.406]$, $\boldsymbol{\sigma} = [0.229, 0.224, 0.225]$.
+      \end{itemize}
+    \item \textbf{Robustness Augmentations (Invariance Training):}
+      \begin{itemize}
+        \item Spatial: Random rotation ($\pm 35^\circ$), horizontal/vertical flips, affine shearing, perspective transforms (simulating non-planar field angles).
+        \item Photometric: Color jitter (brightness $\pm 0.2$, contrast $\pm 0.2$, saturation $\pm 0.2$, hue $\pm 0.05$), Gaussian blur (simulating smartphone defocus).
+        \item Occlusion: Random Erasing / CutOut (simulating soil splatter or leaf tears).
+      \end{itemize}
+    \item \textbf{Deep Latent Representations:}
+      \begin{itemize}
+        \item High-dimensional feature vector $\mathbf{f} \in \mathbb{R}^{D}$ ($D=1280$ for EfficientNet, $D=768$ for ViT) extracted prior to the final classification layer.
+      \end{itemize}
+    \item \textbf{Inference Safeguards \& Guardrails:}
+      \begin{itemize}
+        \item Test-Time Augmentation (TTA, 5-crop averaging) on uncertain border cases.
+        \item Energy-based OOD detector on $\mathbf{f}$ to reject non-botanical uploaded images.
+      \end{itemize}
+  \end{itemize}
+  \end{tcolorbox}%
+\end{minipage}\hfill%
+\begin{minipage}[t]{0.327\linewidth}%
+  \begin{tcolorbox}[
+    canvasbox,
+    colback=bgModel,
+    colframe=headModel,
+    title={6. BUILDING \& UPDATING MODELS},
+    boxed title style={colback=headModel},
+    height=68mm
+  ]
+  \fontsize{7.2pt}{8.8pt}\selectfont
+  \textbf{Model Architecture, MLOps Stack \& Orchestration:}
+  \vspace{1mm}
+  \begin{itemize}
+    \item \textbf{Candidate Architectures (Transfer Learning):}
+      \begin{itemize}
+        \item \emph{Production Backbone:} \textbf{EfficientNet-B0} (4.0M parameters, compound scaling, lowest latency, ideal for CPU/edge container deployment).
+        \item \emph{Robust Residual Baseline:} \textbf{ResNet-50 / ConvNeXt-Tiny} (robust feature extractor).
+        \item \emph{Vision Transformer:} \textbf{ViT-Base/16} (global multi-head self-attention).
+      \end{itemize}
+    \item \textbf{Training Optimization Protocol:}
+      \begin{itemize}
+        \item Loss Function: Cross-Entropy with Label Smoothing ($\epsilon = 0.1$) to prevent overconfident misdiagnoses.
+        \item Optimizer: AdamW ($\text{lr} = 3 \times 10^{-4}$, weight decay $10^{-4}$); Cosine Annealing schedule.
+      \end{itemize}
+    \item \textbf{Experiment Tracking \& Registry:}
+      \begin{itemize}
+        \item \textbf{MLflow}: Complete lineage tracking of hyperparameters, training curves, confusion matrices, and serialized model artifacts. Stage gates: \emph{Candidate} $\rightarrow$ \emph{Staging} $\rightarrow$ \emph{Production}.
+      \end{itemize}
+    \item \textbf{Pipeline Automation \& Quality Gates:}
+      \begin{itemize}
+        \item \textbf{Prefect DAGs}: Automated end-to-end retraining and evaluation workflows.
+        \item \textbf{Great Expectations}: Strict data contract validation prior to training.
+        \item \textbf{Deepchecks}: Automated model test suite verifying data leakage and performance.
+        \item \textbf{CI/CD}: GitHub Actions running linter (\texttt{Ruff}), unit tests (\texttt{pytest}), container build.
+      \end{itemize}
+  \end{itemize}
+  \end{tcolorbox}%
+\end{minipage}%
+
+\vspace{2mm}%
+
+% ==============================================================================
+% ROW 3: 3 COLUMNS (DECISIONS, MAKING PREDICTIONS, OFFLINE EVALUATION) (Height = 68mm)
+% ==============================================================================
+\noindent%
+\begin{minipage}[t]{0.327\linewidth}%
+  \begin{tcolorbox}[
+    canvasbox,
+    colback=bgDecision,
+    colframe=headDecision,
+    title={7. DECISIONS \& OPERATIONAL ACTIONS},
+    boxed title style={colback=headDecision},
+    height=68mm
+  ]
+  \fontsize{7.2pt}{8.8pt}\selectfont
+  \textbf{Translating Predictions into High-Impact Decisions:}
+  \vspace{1mm}
+  \begin{itemize}
+    \item \textbf{Confidence-Gated Operational Policy:}
+      \begin{itemize}
+        \item \textbf{High Confidence ($C \ge 0.80$):}
+          \emph{Action:} Direct automated diagnosis. Render primary pathology name, severity rating, and step-by-step cultural/organic intervention (e.g., copper fungicide, canopy pruning).
+        \item \textbf{Moderate Confidence ($0.60 \le C < 0.80$):}
+          \emph{Action:} Top-2 differential diagnosis. Prompt user with a guided visual inspection checklist (e.g., \emph{"Look at leaf underside: are concentric rings or powdery spores visible?"}).
+        \item \textbf{Low Confidence ($C < 0.60$) or OOD Flag:}
+          \emph{Action:} \textbf{Strict Abstention Policy}. System outputs \emph{"Uncertain Diagnosis --- please consult a local extension specialist or re-photograph with clear lighting"}. Prevents dangerous pesticide misuse.
+      \end{itemize}
+    \item \textbf{Role-Specific Automated Decisions:}
+      \begin{itemize}
+        \item \emph{Farmer:} Instant plain-language advisory (English, Swahili, Hindi) delivered over WhatsApp or mobile app.
+        \item \emph{Extension Officer:} Prioritized batch dashboard ranking farms by contagion severity for rapid field dispatch.
+        \item \emph{Greenhouse IoT:} Automated activation of dehumidifiers / air scrubbers upon localized fungal detection.
+      \end{itemize}
+  \end{itemize}
+  \end{tcolorbox}%
+\end{minipage}\hfill%
+\begin{minipage}[t]{0.327\linewidth}%
+  \begin{tcolorbox}[
+    canvasbox,
+    colback=bgModel,
+    colframe=headModel,
+    title={8. MAKING PREDICTIONS (SERVING)},
+    boxed title style={colback=headModel},
+    height=68mm
+  ]
+  \fontsize{7.2pt}{8.8pt}\selectfont
+  \textbf{Runtime Serving Infrastructure \& SLA Budgets:}
+  \vspace{1mm}
+  \begin{itemize}
+    \item \textbf{Production Serving Modalities:}
+      \begin{itemize}
+        \item \textbf{FastAPI REST Service:} Containerized microservice exposing \texttt{POST /predict} (multipart image upload) and \texttt{GET /health} with OpenAPI documentation.
+        \item \textbf{MCP Server Interface:} Model Context Protocol exposing the \texttt{diagnose\_leaf} tool, allowing seamless native invocation by AI agents (Claude, ChatGPT, WhatsApp bot).
+        \item \textbf{Offline-First Mobile Sync:} Client SQLite queue buffering photos in zero-reception fields; background sync upon cell tower re-acquisition.
+        \item \textbf{Asynchronous Batch Worker:} Extension officer multi-image uploads processed asynchronously with worker queues.
+      \end{itemize}
+    \item \textbf{Deployment Topology:}
+      \begin{itemize}
+        \item Docker Compose architecture orchestrating API container, MLflow artifact store, and Prometheus metrics scraper on Cloud (AWS/GCP/Render).
+      \end{itemize}
+    \item \textbf{Strict Latency Budget (SLA):}
+      \begin{itemize}
+        \item Image Decode \& Preprocessing: $\le 40\,\text{ms}$.
+        \item Model Forward Pass: $\le 90\,\text{ms}$ (CPU) / $\le 15\,\text{ms}$ (GPU).
+        \item Postprocessing \& Knowledge Lookup: $\le 20\,\text{ms}$.
+        \item \textbf{Total Server Latency:} \textbf{$p95 < 200\,\text{ms}$}; \textbf{End-to-End User Turnaround:} \textbf{$< 5\,\text{s}$}.
+      \end{itemize}
+  \end{itemize}
+  \end{tcolorbox}%
+\end{minipage}\hfill%
+\begin{minipage}[t]{0.327\linewidth}%
+  \begin{tcolorbox}[
+    canvasbox,
+    colback=bgEval,
+    colframe=headEval,
+    title={9. OFFLINE EVALUATION \& SIMULATION},
+    boxed title style={colback=headEval},
+    height=68mm
+  ]
+  \fontsize{7.2pt}{8.8pt}\selectfont
+  \textbf{Validation Protocol \& Cost-Loss Matrix:}
+  \vspace{1mm}
+  \begin{itemize}
+    \item \textbf{Validation Split Strategy:}
+      Stratified $70\%$ Train / $15\%$ Validation / $15\%$ Test split, preserved across all 38 classes with fixed random seed and locked via DVC.
+    \item \textbf{Target Offline Metrics:}
+      \begin{itemize}
+        \item Top-1 Accuracy: $\ge 95.0\%$ \quad\textbar\quad Macro-Averaged F1: $\ge 0.930$.
+        \item Expected Calibration Error (ECE): $< 0.050$ (ensuring probabilities represent true frequencies).
+      \end{itemize}
+    \item \textbf{Asymmetric Cost-Utility Matrix (Impact Simulation):}
+      \begin{itemize}
+        \item \textbf{True Positive ($TP$):} \textcolor{headValue}{\textbf{High Positive Utility (+$100$)}} $\rightarrow$ Crop saved, contagion halted.
+        \item \textbf{False Positive ($FP$)} (Healthy labeled as diseased): \textcolor{headDecision}{\textbf{Moderate Cost ($-15$)}} $\rightarrow$ Farmer spends \$5--15/ha on unnecessary organic spray; crop remains intact.
+        \item \textbf{False Negative ($FN$)} (Diseased labeled as healthy): \textcolor{headEval}{\textbf{Catastrophic Loss ($-100$)}} $\rightarrow$ Unchecked pathogen proliferation, total crop destruction ($30$--$100\%$ yield collapse).
+        \item \textbf{Pathogen Misidentification ($CM$):} \textcolor{headEval}{\textbf{Severe Loss ($-80$)}} $\rightarrow$ Ineffective treatment, phytotoxicity, delayed proper intervention.
+      \end{itemize}
+    \item \textbf{Mitigation:} Threshold tuning minimizing $FN$ for virulent classes + abstention fallback on uncertainty.
+  \end{itemize}
+  \end{tcolorbox}%
+\end{minipage}%
+
+\vspace{2mm}%
+
+% ==============================================================================
+% ROW 4: 1 FULL-WIDTH BLOCK (LIVE EVALUATION & MONITORING) (Height = 36mm)
+% ==============================================================================
+\noindent%
+\begin{tcolorbox}[
+  canvasbox,
+  colback=bgMonitor,
+  colframe=headMonitor,
+  title={10. LIVE EVALUATION, TELEMETRY \& DRIFT MONITORING},
+  boxed title style={colback=headMonitor},
+  height=36mm
+]
+\fontsize{7.2pt}{8.8pt}\selectfont
+\begin{minipage}[t]{0.325\linewidth}
+  \textbf{Business \& Agronomic Impact KPIs:}
+  \begin{itemize}
+    \item \textbf{Estimated Yield Saved:} Preserved harvest value computed via verified acreage diagnoses.
+    \item \textbf{Chemical Reduction:} Tracking reduction in broad-spectrum prophylactic pesticide purchases.
+    \item \textbf{Farmer Turnaround \& SLA:} Median end-to-end diagnosis time $<5\,\text{s}$; Weekly Active Farmers.
+    \item \textbf{Expert Validation Agreement:} Expert agronomist audit on sampled cases ($\ge 92\%$ target).
+  \end{itemize}
+\end{minipage}%
+\hfill%
+\begin{minipage}[t]{0.33\linewidth}
+  \textbf{Infrastructure Telemetry \& API Monitoring:}
+  \begin{itemize}
+    \item \textbf{Prometheus Exporter:} Auto-scraping \texttt{/metrics} every 15s.
+    \item \textbf{Core Telemetry:} Throughput (RPS), HTTP 4xx/5xx error rates, latency percentiles ($p50, p95, p99$).
+    \item \textbf{Resource Utilization:} CPU load, RAM allocation, GPU VRAM, worker queue depth.
+    \item \textbf{Grafana Dashboards:} Live visualization of operational health, error budgets, and uptime.
+  \end{itemize}
+\end{minipage}%
+\hfill%
+\begin{minipage}[t]{0.325\linewidth}
+  \textbf{Data Drift \& Concept Drift Detection:}
+  \begin{itemize}
+    \item \textbf{Alibi Detect / Evidently Engine:}
+      \begin{itemize}
+        \item \emph{Covariate Shift:} Kolmogorov-Smirnov test on low-level attributes (luminosity, contrast, blur).
+        \item \emph{Embedding Drift:} Maximum Mean Discrepancy (MMD) on latent feature representations $\mathbf{f}$.
+        \item \emph{Concept Drift:} Chi-squared test on predicted class distribution shifts across seasons.
+      \end{itemize}
+    \item \textbf{Automated Alerting:} Threshold breach triggers Prefect automated retraining pipeline.
+  \end{itemize}
+\end{minipage}
+\end{tcolorbox}%
+
+\end{document}

@@ -1,0 +1,21 @@
+site_name: Plant Disease Diagnosis
+site_author: Marco Garofalo
+
+nav:
+  - Home: index.md
+  - Project introduction: introduction.md
+  - ML Canvas: ml_canvas.pdf
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: green
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: green
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
