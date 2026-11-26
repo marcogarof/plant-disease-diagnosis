@@ -4,7 +4,7 @@ site_author: Marco Garofalo
 nav:
   - Home: index.md
   - Project introduction: introduction.md
-  - ML Canvas: ml_canvas.pdf
+  - ML Canvas: ML_Canvas_v1.pdf
 
 theme:
   name: material
