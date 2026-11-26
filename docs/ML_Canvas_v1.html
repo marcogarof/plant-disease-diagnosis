@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Crop Disease Detection — ML Canvas</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --c-bg:        #F8FAFC;
+    --c-surface:   #FFFFFF;
+    --c-ink:       #0F172A;
+    --c-ink-soft:  #334155;
+    --c-muted:     #64748B;
+    --c-line:      #E2E8F0;
+    --c-line-strong:#CBD5E1;
+    --c-accent:    #3B82F6;
+    --c-accent-soft:#DBEAFE;
+    --c-accent-deep:#1E40AF;
+    --c-warn:      #D97706;
+    --c-warn-soft: #FEF3C7;
+    --c-ok:        #059669;
+    --c-ok-soft:   #D1FAE5;
+
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  }
+
+  @page {
+    size: 1587px auto;
+    margin: 0;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--c-bg);
+    font-family: var(--font-sans), sans-serif;
+    color: var(--c-ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .canvas {
+    width: 1587px;
+    background: var(--c-bg);
+    padding: 22px 26px 26px 26px;
+    box-sizing: border-box;
+    position: relative;
+  }
+
+  /* ===== HEADER BAND ===== */
+  .header-band {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    background: var(--c-ink);
+    color: #FFFFFF;
+    padding: 14px 22px;
+    border-radius: 6px;
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-band::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--c-accent) 0%, var(--c-accent-deep) 50%, var(--c-accent) 100%);
+  }
+  .header-left {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .header-left .title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .header-left .leaf {
+    width: 18px; height: 18px;
+    color: var(--c-accent);
+  }
+  .header-center {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--c-accent-soft);
+    padding: 5px 14px;
+    border: 1px solid rgba(59,130,246,0.4);
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+    font-family: var(--font-mono), monospace;
+    font-size: 10.5px;
+    color: #CBD5E1;
+  }
+  .header-right .version {
+    background: var(--c-accent);
+    color: #FFFFFF;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+  .header-right .owners {
+    color: #E2E8F0;
+  }
+  .header-right .owners .sep {
+    color: var(--c-accent);
+    margin: 0 6px;
+  }
+
+  /* ===== GRID ===== */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 11px;
+  }
+
+  .block {
+    background: var(--c-surface);
+    border: 1px solid var(--c-line);
+    border-radius: 5px;
+    padding: 9px 11px 10px 11px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  .block::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--c-accent);
+  }
+  .block.warn::before  { background: var(--c-warn); }
+  .block.ok::before    { background: var(--c-ok); }
+  .block.ink::before   { background: var(--c-ink); }
+  .block.accent::before{ background: var(--c-accent-deep); }
+
+  .block.wide { grid-column: span 2; }
+
+  .block-head {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--c-line);
+    flex-wrap: wrap;
+  }
+  .block-num {
+    font-family: var(--font-mono), monospace;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--c-accent);
+    background: var(--c-accent-soft);
+    padding: 2px 5px;
+    border-radius: 2px;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .block.warn .block-num   { color: var(--c-warn); background: var(--c-warn-soft); }
+  .block.ok .block-num     { color: var(--c-ok); background: var(--c-ok-soft); }
+  .block.ink .block-num    { color: #FFFFFF; background: var(--c-ink); }
+  .block.accent .block-num { color: #FFFFFF; background: var(--c-accent-deep); }
+
+  .block-icon {
+    width: 13px; height: 13px;
+    color: var(--c-ink-soft);
+    flex-shrink: 0;
+  }
+  .block-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--c-ink);
+    letter-spacing: -0.005em;
+    line-height: 1.15;
+    flex: 1;
+    min-width: 0;
+  }
+  .block-tag {
+    font-family: var(--font-mono), monospace;
+    font-size: 8.5px;
+    color: var(--c-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+  }
+
+  .block-body {
+    font-size: 9.5px;
+    line-height: 1.42;
+    color: var(--c-ink-soft);
+    flex: 1;
+  }
+  .block-body p {
+    margin: 0 0 4px 0;
+  }
+  .block-body p:last-child { margin-bottom: 0; }
+  .block-body strong {
+    color: var(--c-ink);
+    font-weight: 600;
+  }
+  .block-body em {
+    font-style: italic;
+  }
+  .block-body ul {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+  }
+  .block-body li {
+    position: relative;
+    padding-left: 9px;
+    margin-bottom: 3px;
+    line-height: 1.38;
+  }
+  .block-body li:last-child { margin-bottom: 0; }
+  .block-body li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 5px;
+    width: 4px;
+    height: 4px;
+    background: var(--c-accent);
+    border-radius: 50%;
+  }
+  .block.warn .block-body li::before   { background: var(--c-warn); }
+  .block.ok .block-body li::before     { background: var(--c-ok); }
+  .block.ink .block-body li::before    { background: var(--c-ink); }
+  .block.accent .block-body li::before { background: var(--c-accent-deep); }
+
+  /* Inline pill labels inside blocks */
+  .pill {
+    display: inline-block;
+    font-family: var(--font-mono), monospace;
+    font-size: 8.5px;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 2px;
+    background: var(--c-line);
+    color: var(--c-ink-soft);
+    letter-spacing: 0.02em;
+    margin-right: 4px;
+  }
+  .pill.accent { background: var(--c-accent-soft); color: var(--c-accent-deep); }
+  .pill.ok     { background: var(--c-ok-soft); color: var(--c-ok); }
+  .pill.warn   { background: var(--c-warn-soft); color: var(--c-warn); }
+  .pill.ink    { background: var(--c-ink); color: #FFFFFF; }
+
+  /* Two-column inner layout for wide blocks */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+  }
+  .two-col h4 {
+    margin: 0 0 3px 0;
+    font-size: 9.5px;
+    font-weight: 700;
+    color: var(--c-ink);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Footer band */
+  .footer-band {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono), monospace;
+    font-size: 9px;
+    color: var(--c-muted);
+    padding: 0 4px;
+    letter-spacing: 0.02em;
+  }
+  .footer-band .legend {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+  .footer-band .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .footer-band .swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="canvas">
+
+  <!-- ===== HEADER ===== -->
+  <header class="header-band">
+    <div class="header-left">
+      <svg class="leaf" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.13.96.2 1.34.2C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z"/>
+      </svg>
+      <span class="title">Crop Disease Detection</span>
+    </div>
+    <div class="header-center">ML Canvas · OWNML Standard</div>
+    <div class="header-right">
+      <span class="version">v1.0</span>
+      <span class="owners">Luan Abdurahman Nurja<span class="sep">·</span>Marco Garofalo</span>
+    </div>
+  </header>
+
+  <!-- ===== GRID: 10 OWNML blocks, 4+4+4 (VP wide in row 1, IS wide in row 3) ===== -->
+  <main class="grid">
+
+    <!-- 01 — VALUE PROPOSITION (wide, contains Target Users, Pain Points, ML-Based Solution, Integration) -->
+    <section class="block accent wide">
+      <div class="block-head">
+        <span class="block-num">01</span>
+        <svg class="block-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        <span class="block-title">Value Proposition</span>
+        <span class="block-tag">WHY · WHO · PROBLEM · SOLUTION</span>
+      </div>
+      <div class="block-body">
+        <p>The goal is to provide a fast, accessible and user-friendly tool for the preliminary identification of plant diseases, reducing the time, costs and expertise required for an initial assessment and helping users make more informed decisions about plant health management.</p>
+        <div class="two-col" style="margin-top:6px">
+          <div>
+            <h4>Target Users / End Beneficiaries</h4>
+            <ul>
+              <li>Farmers and small-to-medium-sized agricultural businesses that need to regularly monitor the health of their crops.</li>
+              <li>Plant enthusiasts and home gardeners who may lack the expertise to identify plant diseases and symptoms.</li>
+            </ul>
+            <h4 style="margin-top:6px">Pain Points: Traditional Solutions</h4>
+            <ul>
+              <li><strong>High costs:</strong> Consulting agricultural experts or agronomists can be expensive.</li>
+              <li><strong>Long waiting times:</strong> Traditional diagnosis may require inspections, analysis and consultations, making the process slow.</li>
+              <li><strong>Lack of expertise:</strong> Non-professional users often struggle to correctly identify plant diseases.</li>
+              <li><strong>Unreliable information:</strong> Searching online may lead to incomplete, inaccurate or misleading information.</li>
+              <li><strong>Delayed or inappropriate interventions:</strong> Incorrect identification can result in ineffective treatments and potentially worsen the spread of diseases.</li>
+            </ul>
+          </div>
+          <div>
+            <h4>ML-Based Solution</h4>
+            <p>An AI-powered Crop Disease Detection system that allows users to identify potential plant diseases quickly and easily through a simple mobile or web application.</p>
+            <p>Users can:</p>
+            <ul>
+              <li>Upload or take a picture of a plant leaf.</li>
+              <li>Receive an automated ML-based disease prediction.</li>
+              <li>View the predicted disease and its confidence score.</li>
+              <li>Access useful information about the identified disease, its symptoms and possible next steps.</li>
+              <li>Obtain preliminary guidance on whether professional assistance is needed.</li>
+            </ul>
+            <h4 style="margin-top:6px">Integration into the User Workflow / Interfaces</h4>
+            <ul>
+              <li><strong>API:</strong> Integration with existing agricultural applications and third-party platforms.</li>
+              <li><strong>MCP</strong> (Model Context Protocol): Enables AI assistants and LLM-based applications to access disease detection capabilities and related information through standardized tools.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 — PREDICTION TASK -->
+    <section class="block ink">
+      <div class="block-head">
+        <span class="block-num">02</span>
+        <svg class="block-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+        <span class="block-title">Prediction Task</span>
+        <span class="block-tag">TASK</span>
+      </div>
+      <div class="block-body">
+        <p>The task is a supervised image classification problem, specifically a multiclass, single-label classification task based on the 38 classes available in the PlantVillage dataset.</p>
+        <p>The proposed approach is Flat Classification, where each class represents a specific combination of plant species and health status (e.g., Tomato___Early_blight, Apple___Black_rot, Potato___healthy).</p>
+        <p><strong>Input:</strong> A single image of a plant leaf, captured directly by the user through the application or uploaded from its device.</p>
+        <p><strong>Output:</strong> The model directly predicts the most likely class, identifying both the plant species and its health status or disease. The application displays the predicted label along with its confidence score. Users can optionally expand the results to view the top alternative predictions.</p>
+        <p><strong>Inference strategy:</strong> Online inference. The prediction is performed immediately after the user captures or uploads an image, providing near-instant feedback.</p>
+      </div>
+    </section>
+
+    <!-- 03 — DECISIONS -->
+    <section class="block accent">
+      <div class="block-head">
+        <span class="block-num">03</span>
+        <svg class="block-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span class="block-title">Decisions</span>
+        <span class="block-tag">ACTIONS</span>
+      </div>
+      <div class="block-body">
+        <p>The model's prediction is used to provide users with information about the health status of their plants and support their decision-making process.</p>
+        <p>Once the prediction is generated, the system will:</p>
+        <ul>
+          <li>Display the identified plant disease to the user.</li>
+          <li>Provide up to 5 visually similar examples of leaves affected by the predicted disease, allowing users to compare their own case with existing examples.</li>
+          <li>Offer additional information about the identified disease, including its symptoms, causes and prevention methods.</li>
+          <li>Suggest possible next steps, such as monitoring the plant or consulting an agricultural expert when necessary.</li>
+          <li>if the image is not founded in the given classes, ora it has low confidencce --&gt; error message</li>
+        </ul>
+        <p>The system aims to help users better understand the potential health condition of their plants and make more informed decisions. The prediction is intended as a preliminary assessment and does not replace a professional diagnosis or expert advice.</p>
+      </div>
+    </section>
+
+    <!-- 04 — DATA SOURCES -->
+    <section class="block">
+      <div class="block-head">
+        <span class="block-num">04</span>
+        <svg class="block-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        <span class="block-title">Data Sources</span>
+        <span class="block-tag">DATA</span>
+      </div>
+      <div class="block-body">
+        <p>The project will use the PlantVillage dataset as its only data source.</p>
+        <p>It contains approximately 54,000 labeled images covering 14 plant species and 38 classes, including both healthy and diseased leaves.</p>
+        <p>Each image is associated with a label indicating the plant species and its health condition. The dataset will be used to train, validate and test the image classification model.</p>
+      </div>
+    </section>
+
+    <!-- 05 — DATA COLLECTION -->
+    <section class="block">
+      <div class="block-head">
+        <span class="block-num">05</span>
+        <svg class="block-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        <span class="block-title">Data Collection</span>
+        <span class="block-tag">EDA · SPLIT</span>
+      </div>
+      <div class="block-body">
+        <p>The PlantVillage dataset will be downloaded from a publicly available source and organized into its 38 classes.</p>
+        <p>Before training, an exploratory data analysis (EDA) will be performed using classical statistical methods to better understand the dataset. This will include:</p>
+        <ul>
+          <li>Counting the number of images in each class and visualizing their distribution.</li>
+          <li>Checking for class imbalance by comparing the number of samples across classes.</li>
+          <li>Analyzing basic image properties, such as dimensions and RGB channel distributions.</li>
+          <li>Checking for corrupted files, duplicates and highly similar images.</li>
+        </ul>
+        <p>Based on these analyses, the dataset will be cleaned and prepared for training.</p>
+        <p>The images will then be divided into training (70%), validation (15%) and test (15%) sets using stratified sampling, in order to preserve the class distribution across all subsets.</p>
+      </div>
+    </section>
+
+    <!-- 06 — FEATURES -->
+    <section class="block">
+      <div class="block-head">
+        <span class="block-num">06</span>
+        <svg class="block-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <span class="block-title">Features</span>
+        <span class="block-tag">INPUT REP</span>
+      </div>
+      <div class="block-body">
+        <p>The entity at prediction time is an individual plant leaf, represented as an RGB image.</p>
+        <p>Before being fed into the model, the raw image undergoes the following preprocessing steps:</p>
+        <ul>
+          <li>Resizing to a fixed input dimension (e.g., 224×224 pixels).</li>
+          <li>Pixel value normalization.</li>
+          <li>Conversion into the format required by the selected CNN architecture.</li>
+        </ul>
+        <p>During training, data augmentation techniques such as rotations, flips and brightness adjustments may also be applied to increase image variability and improve the model's ability to generalize.</p>
+        <p>No manual feature extraction is required.</p>
+      </div>
+    </section>
+
+    <!-- 07 — BUILDING MODELS -->
+    <section class="block accent">
+      <div class="block-head">
+        <span class="block-num">07</span>
+        <svg class="block-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="2" x2="9" y2="4"/><line x1="15" y1="2" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="22"/><line x1="15" y1="20" x2="15" y2="22"/><line x1="20" y1="9" x2="22" y2="9"/><line x1="20" y1="14" x2="22" y2="14"/><line x1="2" y1="9" x2="4" y2="9"/><line x1="2" y1="14" x2="4" y2="14"/></svg>
+        <span class="block-title">Building Models</span>
+        <span class="block-tag">MODEL</span>
+      </div>
+      <div class="block-body">
+        <p>Two CNN architectures, ResNet50 and DenseNet121, will be developed using transfer learning with pre-trained ImageNet weights.</p>
+        <p>The classification results obtained will be compared to evaluate its impact on model performance.</p>
+        <p>Both classification models will initially be trained and evaluated, while only the best-performing one will be selected for production. Model updates will be considered when new data becomes available or when improvements are needed.</p>
+        <p>Model training will be performed locally using an NVIDIA GeForce RTX 3070 Laptop GPU (8 GB VRAM), supported by an AMD Ryzen 7 5800H CPU and 16 GB of RAM. Inference will use the selected model to provide predictions with low latency.</p>
+      </div>
+    </section>
+
+    <!-- 08 — MAKING PREDICTIONS -->
+    <section class="block">
+      <div class="block-head">
+        <span class="block-num">08</span>
+        <svg class="block-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span class="block-title">Making Predictions</span>
+        <span class="block-tag">INFERENCE</span>
+      </div>
+      <div class="block-body">
+        <p>Predictions will be performed in real time whenever a user uploads or captures a new leaf image.</p>
+        <p>Approach to be evaluated:</p>
+        <ul>
+          <li>The preprocessed image is directly passed to ResNet50 or DenseNet121 for disease classification.</li>
+        </ul>
+        <p>The system is expected to provide a prediction within a few seconds, including preprocessing.</p>
+      </div>
+    </section>
+
+    <!-- 09 — IMPACT SIMULATION (wide, cols 1-2) -->
+    <section class="block warn wide">
+      <div class="block-head">
+        <span class="block-num">09</span>
+        <svg class="block-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M7 12h10"/><path d="M11 18h2"/></svg>
+        <span class="block-title">Impact Simulation</span>
+        <span class="block-tag">COST · GAIN · DEPLOYMENT</span>
+      </div>
+      <div class="block-body">
+        <div class="two-col">
+          <div>
+            <h4>Cost and gain of decisions</h4>
+            <p>Correct predictions can help users identify plant diseases early and make informed decisions. Incorrect predictions may lead to unnecessary treatments, delayed interventions or crop losses. Uncertain predictions should encourage users to consult an agricultural expert. A cost matrix may be used to assign different penalties to classification errors based on their potential impact. For example, classifying a diseased leaf as healthy will have a higher penalty than confusing two diseases of the same plant species.</p>
+            <h4 style="margin-top:6px">Data used for impact simulation</h4>
+            <p>The PlantVillage test set will be used to compare model predictions with the actual labels and evaluate classification errors. If available, additional real-world images not included in the dataset will be used to assess how well the models generalize to different conditions.</p>
+          </div>
+          <div>
+            <h4>Deployment criteria</h4>
+            <p>The model will be considered suitable for deployment if it achieves good overall performance, performs consistently across all 38 classes and provides predictions within a few seconds. It should also handle uncertain predictions and detect unsupported images whenever possible, notifying users when an image cannot be reliably classified.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 — MONITORING -->
+    <section class="block ok">
+      <div class="block-head">
+        <span class="block-num">10</span>
+        <svg class="block-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        <span class="block-title">Monitoring</span>
+        <span class="block-tag">KPIs · FREQ</span>
+      </div>
+      <div class="block-body">
+        <h4>Metrics and KPIs</h4>
+        <p>The system will be monitored using both technical and user-oriented metrics.</p>
+        <ul>
+          <li><strong>Model performance:</strong> accuracy, precision, recall and F1-score, evaluated when ground-truth labels are available.</li>
+          <li><strong>Prediction reliability:</strong> percentage of uncertain or rejected predictions and performance across the 38 classes.</li>
+          <li><strong>System performance:</strong> average inference time, system errors and prediction failures.</li>
+          <li><strong>User impact:</strong> number of predictions, user feedback and satisfaction.</li>
+          <li><strong>Business impact:</strong> active users, user retention and application usage.</li>
+        </ul>
+        <h4 style="margin-top:6px">Monitoring frequency</h4>
+        <p>System performance and errors will be monitored continuously. Usage statistics and user feedback will be reviewed weekly, while model performance and overall user and business impact will be evaluated monthly, when sufficient data is available. Significant performance degradation may trigger further investigation and model updates.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER LEGEND ===== -->
+  <footer class="footer-band">
+    <div class="legend">
+      <div class="legend-item"><span class="swatch" style="background:#3B82F6"></span>Solution / Model</div>
+      <div class="legend-item"><span class="swatch" style="background:#D97706"></span>Impact Simulation</div>
+      <div class="legend-item"><span class="swatch" style="background:#059669"></span>Monitoring</div>
+      <div class="legend-item"><span class="swatch" style="background:#0F172A"></span>Prediction Task</div>
+      <div class="legend-item"><span class="swatch" style="background:#CBD5E1"></span>Neutral</div>
+    </div>
+    <div>Crop Disease Detection · ML Canvas v1.0 · OWNML Standard</div>
+  </footer>
+
+</div>
+
+</body>
+</html>
