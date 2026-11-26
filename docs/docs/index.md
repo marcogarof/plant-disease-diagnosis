@@ -6,7 +6,7 @@ leaf photo and return the top-k `(crop, disease)` labels with confidence.
 ## Contents
 
 - [Project introduction](introduction.md) — problem, users, use cases, scope.
-- [ML Canvas (PDF)](ml_canvas.pdf) — Louis Dorard canvas for M1 Inception.
+- [ML Canvas (PDF)](ML_Canvas_v1.pdf) — Canvas for M1 Inception.
 
 ## Commands
 
